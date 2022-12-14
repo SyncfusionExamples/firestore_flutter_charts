@@ -33,7 +33,7 @@ class _LiveChartState extends State<LiveChart> {
   @override
   void initState() {
     getDataFromFireStore().then((results) {
-      SchedulerBinding.instance!.addPostFrameCallback((timeStamp) {
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
         setState(() {});
       });
     });
@@ -44,9 +44,11 @@ class _LiveChartState extends State<LiveChart> {
     var snapShotsValue =
         await FirebaseFirestore.instance.collection("chartData").get();
     List<_ChartData> list = snapShotsValue.docs
-        .map((e) => _ChartData(x: DateTime.fromMillisecondsSinceEpoch(
-                e.data()['x'].millisecondsSinceEpoch)
-, y: e.data()['y']))
+        .map((e) => _ChartData(
+            x: e.data()['x'],
+            // x: DateTime.fromMillisecondsSinceEpoch(
+            //     e.data()['x'].millisecondsSinceEpoch),
+            y: e.data()['y']))
         .toList();
     setState(() {
       chartData = list;
@@ -63,10 +65,9 @@ class _LiveChartState extends State<LiveChart> {
       appBar: AppBar(),
       body: SfCartesianChart(
           tooltipBehavior: TooltipBehavior(enable: true),
-          primaryXAxis: DateTimeAxis(
-          ),
-          series: <LineSeries<_ChartData, DateTime>>[
-            LineSeries<_ChartData, DateTime>(
+          primaryXAxis: CategoryAxis(),
+          series: <LineSeries<_ChartData, String>>[
+            LineSeries<_ChartData, String>(
                 dataSource: chartData,
                 xValueMapper: (_ChartData data, _) => data.x,
                 yValueMapper: (_ChartData data, _) => data.y)
@@ -77,6 +78,6 @@ class _LiveChartState extends State<LiveChart> {
 
 class _ChartData {
   _ChartData({this.x, this.y});
-  final DateTime? x;
+  final String? x;
   final int? y;
 }
